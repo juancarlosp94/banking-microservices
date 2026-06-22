@@ -26,4 +26,23 @@ public class CustomerController {
     public List<CustomerResponse> findAll() {
         return service.findAll();
     }
+
+    @GetMapping("/{id}")
+    public CustomerResponse findById(@PathVariable Long id) {
+        return service.findById(id);
+    }
+
+    @PutMapping("/{id}")
+    public CustomerResponse update(
+            @PathVariable Long id,
+            @RequestBody CustomerRequest request
+    ) {
+        return service.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
+    }
+
 }

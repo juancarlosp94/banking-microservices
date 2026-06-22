@@ -17,12 +17,7 @@ public class CustomerService {
         this.repository = repository;
     }
 
-    public CustomerResponse create(CustomerRequest request) {
-        if (repository.existsByIdentification(request.identification())) {
-            throw new RuntimeException("Identification already exists");
-        }
-
-        Customer customer = new Customer();
+    private void updateFields(Customer customer, CustomerRequest request) {
         customer.setName(request.name());
         customer.setGender(request.gender());
         customer.setAge(request.age());
@@ -31,8 +26,41 @@ public class CustomerService {
         customer.setPhone(request.phone());
         customer.setPassword(request.password());
         customer.setActive(request.active());
+    }
+
+    public CustomerResponse create(CustomerRequest request) {
+        if (repository.existsByIdentification(request.identification())) {
+            throw new RuntimeException("Identification already exists");
+        }
+
+        Customer customer = new Customer();
+        updateFields(customer, request);
 
         return toResponse(repository.save(customer));
+    }
+
+    public CustomerResponse findById(Long id) {
+        Customer customer = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        return toResponse(customer);
+    }
+
+    public CustomerResponse update(Long id, CustomerRequest request) {
+        Customer customer = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        updateFields(customer, request);
+
+        return toResponse(repository.save(customer));
+    }
+
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Customer not found");
+        }
+
+        repository.deleteById(id);
     }
 
     public List<CustomerResponse> findAll() {
