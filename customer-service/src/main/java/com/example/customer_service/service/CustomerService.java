@@ -1,9 +1,12 @@
 package com.example.customer_service.service;
 
+import com.example.customer_service.config.RabbitConfig;
 import com.example.customer_service.dto.CustomerRequest;
 import com.example.customer_service.dto.CustomerResponse;
 import com.example.customer_service.entity.Customer;
+import com.example.customer_service.event.CustomerCreatedEvent;
 import com.example.customer_service.repository.CustomerRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,9 +15,34 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository repository;
+    private final RabbitTemplate rabbitTemplate;
 
-    public CustomerService(CustomerRepository repository) {
+    public CustomerService(CustomerRepository repository, RabbitTemplate rabbitTemplate) {
         this.repository = repository;
+        this.rabbitTemplate = rabbitTemplate;
+    }
+
+    public CustomerResponse create(CustomerRequest request) {
+        if (repository.existsByIdentification(request.identification())) {
+            throw new RuntimeException("Identification already exists");
+        }
+
+        Customer customer = new Customer();
+        updateFields(customer, request);
+
+        Customer saved = repository.save(customer);
+
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CUSTOMER_EXCHANGE,
+                RabbitConfig.CUSTOMER_CREATED_ROUTING_KEY,
+                new CustomerCreatedEvent(
+                        saved.getId(),
+                        saved.getName(),
+                        saved.getActive()
+                )
+        );
+
+        return toResponse(saved);
     }
 
     private void updateFields(Customer customer, CustomerRequest request) {
@@ -26,17 +54,6 @@ public class CustomerService {
         customer.setPhone(request.phone());
         customer.setPassword(request.password());
         customer.setActive(request.active());
-    }
-
-    public CustomerResponse create(CustomerRequest request) {
-        if (repository.existsByIdentification(request.identification())) {
-            throw new RuntimeException("Identification already exists");
-        }
-
-        Customer customer = new Customer();
-        updateFields(customer, request);
-
-        return toResponse(repository.save(customer));
     }
 
     public CustomerResponse findById(Long id) {
