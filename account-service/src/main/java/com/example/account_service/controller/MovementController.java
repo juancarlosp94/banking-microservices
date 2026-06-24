@@ -3,6 +3,7 @@ package com.example.account_service.controller;
 import com.example.account_service.dto.MovementRequest;
 import com.example.account_service.dto.MovementResponse;
 import com.example.account_service.service.MovementService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +17,7 @@ public class MovementController {
     }
 
     @PostMapping
-    public MovementResponse create(@RequestBody MovementRequest request) {
+    public MovementResponse create(@Valid @RequestBody MovementRequest request) {
         return service.create(request);
     }
 }

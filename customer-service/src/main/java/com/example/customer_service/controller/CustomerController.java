@@ -3,6 +3,7 @@ package com.example.customer_service.controller;
 import com.example.customer_service.dto.CustomerRequest;
 import com.example.customer_service.dto.CustomerResponse;
 import com.example.customer_service.service.CustomerService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class CustomerController {
     }
 
     @PostMapping
-    public CustomerResponse create(@RequestBody CustomerRequest request) {
+    public CustomerResponse create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request);
     }
 

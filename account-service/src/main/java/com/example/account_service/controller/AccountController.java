@@ -3,6 +3,7 @@ package com.example.account_service.controller;
 import com.example.account_service.dto.AccountRequest;
 import com.example.account_service.dto.AccountResponse;
 import com.example.account_service.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public AccountResponse create(@RequestBody AccountRequest request) {
+    public AccountResponse create(@Valid @RequestBody AccountRequest request) {
         return service.create(request);
     }
 
