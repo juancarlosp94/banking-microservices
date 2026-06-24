@@ -31,4 +31,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ApiError(ex.getMessage(), LocalDateTime.now()));
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiError> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(new ApiError(ex.getMessage(), LocalDateTime.now()));
+    }
 }
