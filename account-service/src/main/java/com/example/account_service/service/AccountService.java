@@ -3,6 +3,7 @@ package com.example.account_service.service;
 import com.example.account_service.dto.AccountRequest;
 import com.example.account_service.dto.AccountResponse;
 import com.example.account_service.entity.Account;
+import com.example.account_service.exception.ResourceNotFoundException;
 import com.example.account_service.repository.AccountRepository;
 import com.example.account_service.repository.CustomerReferenceRepository;
 import org.springframework.stereotype.Service;
@@ -57,5 +58,20 @@ public class AccountService {
                 account.getActive(),
                 account.getCustomerId()
         );
+    }
+
+    public AccountResponse findById(Long id) {
+        Account account = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        return toResponse(account);
+    }
+
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Account not found");
+        }
+
+        repository.deleteById(id);
     }
 }
